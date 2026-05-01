@@ -6,7 +6,7 @@ int main(int argc,char** argv){
     int a,b;
 
     srand((unsigned) time(NULL));
-    int T[52];
+    int T[51];
     
     //トランプ用意
     for(int i=0; i=<51; i++){
