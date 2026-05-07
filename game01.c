@@ -3,25 +3,27 @@
 #include <time.h>
 
 int main(int argc,char** argv){
-    int a,b;
 
-    srand((unsigned) time(NULL));
     int T[51];
     
     //トランプ用意
-    for(int i=0; i=<51; i++){
+    for(int i=0; i<52; i++){
         T[i] = i;
     }
 
-    //トランプシャッフル
-    for(int j=0; j=<; j++){
 
+    //トランプシャッフル
+    srand((unsigned) time(NULL));
+    int ransu, tmp;
+    for(int i=0; i<50; i++){
+        ransu = rand() % (51-i);
+        tmp = T[ransu];
+        T[ransu] = T[51-i];
+        T[51-i] = tmp;
     }
 
-
-    int T[52];
-
-    scanf("%d"&a);
-    if(a )
+    for(int i=0; i<50; i++){
+        printf("%d\n",T[i]);
+    }
     return 0;
 }
