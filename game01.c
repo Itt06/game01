@@ -4,26 +4,39 @@
 
 int main(int argc,char** argv){
 
-    int T[51];
-    
-    //トランプ用意
-    for(int i=0; i<52; i++){
-        T[i] = i;
+    //カード準備　cards[0][j]が黒、cards[1][j]が赤
+    int cards[2][26];
+    for(int i=0; i<2; i++){
+        for(int j=0; j<25; j++){
+            cards[i][j] = j;
+        }
     }
 
 
-    //トランプシャッフル
+    //フィッシャー・イェーツシャッフル
     srand((unsigned) time(NULL));
-    int ransu, tmp;
+    int ransu_i, ransu_j, tmp;
     for(int i=0; i<50; i++){
-        ransu = rand() % (51-i);
-        tmp = T[ransu];
-        T[ransu] = T[51-i];
-        T[51-i] = tmp;
+        if(i<26){
+            ransu_i = rand() % 2;
+            ransu_j = rand() % (26-i);
+            tmp = cards[ransu_i][ransu_j];
+            cards[ransu_i][ransu_j] = cards[1][25-i];
+            cards[1][25-i] = tmp;
+        }
+        else{
+        ransu_j = rand() % (51-i);
+        tmp = cards[0][ransu_j];
+        cards[0][ransu_j] = cards[0][51-i];
+        cards[0][51-i] = tmp;
+        }
     }
 
-    for(int i=0; i<50; i++){
-        printf("%d\n",T[i]);
+    for(int i=0; i<2; i++){
+        for(int j=0; j<52; j++){
+            printf("%d\n", cards[i][j] );
+        }
     }
+
     return 0;
 }
