@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+void show_cards();
+
 int main(int argc,char** argv){
 
     //カード準備　cards[0][j]が黒、cards[1][j]が赤
@@ -36,14 +38,56 @@ int main(int argc,char** argv){
         cards[row_last][col_last - i] = tmp;
     }
 
-    //カードを表示する
+
+    //説明
+    printf("神経衰弱\nこの神経衰弱は色も一致しなければとれません。\n");
+
+
+    //
+    int x, y;
+    while(1){
+        printf("選んだカードの座標を入力してください。\n");
+        show_cards(cards);
+        
+        
+        printf("X = ");
+        scanf("%d\n", &x);
+
+        printf("Y = ");
+        scanf("%d\n", &y);
+
+        printf("%d, %d", x, y);
+        break;
+    }
+
+
+    
+    
+
+
+    //答え合わせ
     for(int i = 0; i < 4; i++){
         for(int j = 0; j < 13; j++){
+            if(cards[i % 2][i / 2 * 13 + j] - 10 < 0){
+                printf(" ");
+            }
+            printf("  ");
             printf("%d", cards[i % 2][i / 2 * 13 + j]);
-            printf(" ");
         }
         printf("\n");
     }
-
-    return 0;
 }
+//カード表示
+    void show_cards(int cards[2][26]){
+        for(int i = 0; i < 4; i++){
+            for(int j = 0; j < 13; j++){
+                if(cards[i][j] == 100){
+                    printf("   ");
+                }
+                else{
+                    printf("  ■");
+                }
+            }
+            printf("\n");
+        }
+    }
