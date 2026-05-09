@@ -2,12 +2,12 @@
 #include <stdlib.h>
 #include <time.h>
 
-void show_cards();
+void showCards(int x, int y);
+int cards[2][26];
 
 int main(int argc,char** argv){
 
     //カード準備　cards[0][j]が黒、cards[1][j]が赤
-    int cards[2][26];
     for(int i = 0; i < 2; i++){
         for(int j = 0; j < 26; j++){
             cards[i][j] = j;
@@ -44,19 +44,38 @@ int main(int argc,char** argv){
 
 
     //
-    int x, y;
+    int x1, y1, x2, y2;
+
+    showCards(-1, -1);
     while(1){
-        printf("選んだカードの座標を入力してください。\n");
-        show_cards(cards);
-        
-        
+        //一枚目のカード
+        printf("最初に選ぶカードの座標を入力してください。\n");
         printf("X = ");
-        scanf("%d\n", &x);
-
+        scanf("%d", &x1);
         printf("Y = ");
-        scanf("%d\n", &y);
+        scanf("%d", &y1);
+        showCards(x1, y1);
 
-        printf("%d, %d", x, y);
+        //二枚目のカード
+        printf("次に選ぶカードの座標を入力してください。\n");
+        printf("X = ");
+        scanf("%d", &x2);
+        printf("Y = ");
+        scanf("%d", &y2);
+
+        //判定
+        if(cards[x1][y1] == cards[x2][y2]){
+            cards[x1][y1] = -1;
+            cards[x2][y2] = -1;
+            printf("正解\n");
+        }
+        else{
+            printf("不正解\n");
+        }
+        showCards(-1,-1);
+
+
+
         break;
     }
 
@@ -71,23 +90,29 @@ int main(int argc,char** argv){
             if(cards[i % 2][i / 2 * 13 + j] - 10 < 0){
                 printf(" ");
             }
-            printf("  ");
-            printf("%d", cards[i % 2][i / 2 * 13 + j]);
+            printf("%d  ", cards[i % 2][i / 2 * 13 + j]);
         }
         printf("\n");
     }
 }
+
+
 //カード表示
-    void show_cards(int cards[2][26]){
-        for(int i = 0; i < 4; i++){
-            for(int j = 0; j < 13; j++){
-                if(cards[i][j] == 100){
-                    printf("   ");
-                }
-                else{
-                    printf("  ■");
-                }
+void showCards(int x, int y){
+    printf("  1  2  3  4  5  6  7  8  9 10 11 12 13\n");
+    for(int i = 0; i < 4; i++){
+        printf("%d ", i + 1);
+        for(int j = 0; j < 13; j++){
+            if(cards[i][j] == 100){
+                printf("   ");
             }
-            printf("\n");
+            else if(j == x -1 && i == y -1){
+                printf("□  ");
+            }
+            else{
+                printf("■  ");
+            }
         }
+        printf("\n");
     }
+}
