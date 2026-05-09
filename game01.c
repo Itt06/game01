@@ -3,44 +3,33 @@
 #include <time.h>
 
 void showCards(int x, int y);
-int cards[2][26];
+void judgement(int x1, int y1, int x2, int y2);
+void cardsMark(int i);
 
+int cards[52], correctAnswer[52];
 int main(int argc,char** argv){
 
-    //カード準備　cards[0][j]が黒、cards[1][j]が赤
-    for(int i = 0; i < 2; i++){
-        for(int j = 0; j < 26; j++){
-            cards[i][j] = j;
-        }
+    //カード準備
+    for(int i = 0; i < 52; i++){
+        cards[i] = i;
     }
 
 
     //フィッシャー・イェーツシャッフル
-    int tmp, row, col;
     srand((unsigned) time(NULL));
-    for(int i = 0; i < 50; i++){
-        int ransu = rand() % (51 - i);
-        if(ransu > 25){         //通し番号をつけて二次元配列を一次元に対応させる
-            row = 1;
-            col = ransu - 26;
-        }
-        else{
-            row = 0;
-            col = ransu;
-        }
-        int row_last = 1, col_last = 25;       //cards[1][j]を全部入れ替えたらcards[0][j]に移行する
-        if(i > 25){
-            row_last = 0;
-            col_last = 51;
-        }
-        tmp = cards[row][col];
-        cards[row][col] = cards[row_last][col_last - i];
-        cards[row_last][col_last - i] = tmp;
+    int ransu, tmp;
+    for(int i=0; i<50; i++){
+        ransu = rand() % (51-i);
+        tmp = cards[ransu];
+        cards[ransu] = cards[51-i];
+        cards[51-i] = tmp;
+    }
+    for(int i = 0; i<52; i++){
+        correctAnswer[i] = cards[i];
     }
 
-
     //説明
-    printf("神経衰弱\nこの神経衰弱は色も一致しなければとれません。\n");
+    printf("神経衰弱\nこの神経衰弱は黒、赤それぞれ26枚のカードを用います。数字の範囲は0～13です。色、数字共に一致しなければとれません。\n");
 
 
     //
@@ -55,6 +44,8 @@ int main(int argc,char** argv){
         printf("Y = ");
         scanf("%d", &y1);
         showCards(x1, y1);
+        cardsMark((x1 - 1) * 13 + y1 - 1);
+        printf("\n");
 
         //二枚目のカード
         printf("次に選ぶカードの座標を入力してください。\n");
@@ -63,34 +54,22 @@ int main(int argc,char** argv){
         printf("Y = ");
         scanf("%d", &y2);
 
-        //判定
-        if(cards[x1][y1] == cards[x2][y2]){
-            cards[x1][y1] = -1;
-            cards[x2][y2] = -1;
-            printf("正解\n");
-        }
-        else{
-            printf("不正解\n");
-        }
+        judgement(x1, y1, x2, y2);
         showCards(-1,-1);
+        cardsMark((x2 - 1) * 13 + y2 - 1);
+        printf("\n");
 
-
-
-        break;
     }
 
 
-    
-    
-
-
-    //答え合わせ
+    //答え表示
     for(int i = 0; i < 4; i++){
         for(int j = 0; j < 13; j++){
-            if(cards[i % 2][i / 2 * 13 + j] - 10 < 0){
+            cardsMark(i * 13 + j);
+            if((correctAnswer[i * 13 + j] + 1) % 13 != 0 && (correctAnswer[i * 13 + j] + 1) % 13 < 10){
                 printf(" ");
             }
-            printf("%d  ", cards[i % 2][i / 2 * 13 + j]);
+            printf("  ");
         }
         printf("\n");
     }
@@ -103,7 +82,7 @@ void showCards(int x, int y){
     for(int i = 0; i < 4; i++){
         printf("%d ", i + 1);
         for(int j = 0; j < 13; j++){
-            if(cards[i][j] == 100){
+            if(cards[i * 13 + j] == -1){
                 printf("   ");
             }
             else if(j == x -1 && i == y -1){
@@ -114,5 +93,40 @@ void showCards(int x, int y){
             }
         }
         printf("\n");
+    }
+}
+
+//正誤判定
+void judgement(int x1, int y1, int x2, int y2){
+    if(abs(cards[(y1 - 1) * 13 + x1 - 1] - cards[(y2 - 1 ) * 13 + x2 - 1]) == 13){
+        if(cards[(y1 - 1) * 13 + x1 - 1] < 26 && cards[(y2 - 1) * 13 + x2 - 1] < 26){
+            cards[(y1 - 1) * 13 + x1 - 1] = -1;
+            cards[(y2 - 1) * 13 + x2 - 1] = -1;
+            printf("正解\n");
+        }
+        else if(cards[(y1 - 1) * 13 + x1 - 1] > 25 && cards[(y2 - 1) * 13 + x2 - 1] > 25){
+            cards[(y1 - 1) * 13 + x1 - 1] = -1;
+            cards[(y2 - 1) * 13 + x2 - 1] = -1;
+            printf("正解\n");
+        }
+    }
+    else{
+        printf("不正解\n");
+    }
+}
+
+//カードに対応させる
+void cardsMark(int i){
+    if(correctAnswer[i] < 13){
+        printf("黒%d", correctAnswer[i] + 1);
+    }
+    else if(correctAnswer[i] > 12 && correctAnswer[i] <26){
+        printf("黒%d", correctAnswer[i]- 13 + 1);
+    }
+    else if(correctAnswer[i] > 25 && correctAnswer[i] < 39){
+        printf("赤%d", correctAnswer[i] -26 + 1);
+    }
+    else{
+        printf("赤%d", correctAnswer[i] - 39 + 1);
     }
 }
