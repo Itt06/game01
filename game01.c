@@ -64,6 +64,7 @@ int main(void){
         printf("残り回数：%d\n", KAISU - count);
         Card *idx1 = inputCard("--- 1枚目のカードを選んでください ---");
         cardsMark(*idx1);
+        // 選択したカードであることを示す
         idx1->isSelected = true;
         printf("\n\n");
         showCards();
@@ -73,10 +74,12 @@ int main(void){
         Card *idx2 = inputCard("--- 2枚目のカードを選んでください ---");
         judgement(idx1, idx2);
         cardsMark(*idx2);
+        // 選択したカードであることを示す
         idx2->isSelected = true;
         printf("\n\n-------------------------------------------------\n\n");
         showCards();
 
+        // 選択状態をリセット
         idx1->isSelected = false;
         idx2->isSelected = false;
 
@@ -93,6 +96,7 @@ int main(void){
                     hintCard[i] = correctAnswer[hintRansu % 13][hintRansu / 13];
                     break;
                 }
+                // ヒントが既に取られているカードであれば、次のカードをヒントにする
                 hintRansu = (hintRansu + 1) % 52;
                 hintCount++;
 
@@ -144,6 +148,7 @@ void showCards(){
     for(int i = 0; i < 4; i++){
         printf("%d ", i + 1);
         for(int j = 0; j < 13; j++){
+            // カードが取られた場合はスペース、選択されている場合は□、それ以外は■を表示
             if(correctAnswer[j][i].isGotten){
                 printf("   ");
             }
@@ -190,6 +195,8 @@ Card* inputCard(const char* message) {
 
 //正誤判定
 void judgement(Card* idx1, Card* idx2){
+    // 色と数字が両方とも一致しているかどうかを判定
+    // suitは0,1が黒、2,3が赤なので、suitを2で割った商が同じであれば色が一致していると判断できる
     if((idx1->suit / 2 == idx2->suit / 2) && (idx1->number == idx2->number)){
         printf("正解\n");
         idx1->isGotten = true;
