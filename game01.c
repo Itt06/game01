@@ -2,12 +2,19 @@
 #include <stdlib.h>
 #include <time.h>
 
-void showCards(int x, int y);
-void judgement(int x1, int y1, int x2, int y2);
-void cardsMark(int i);
+#define KAISU 20    //何回選択するか
 
-int cards[52], correctAnswer[52], score = 0;
-int main(int argc,char** argv){
+void showCards(int idx);
+void judgement(int idx1, int idx2);
+void cardsMark(int i);
+int inputCard(const char* message, int firstIdx);
+
+int cards[52];          //場のカード状況を記録
+int correctAnswer[52];  //正解を記録
+int score = 0;
+
+
+int main(void){
 
 
     //カード準備
@@ -19,8 +26,8 @@ int main(int argc,char** argv){
     //フィッシャー・イェーツシャッフル
     srand((unsigned) time(NULL));
     int ransu, tmp;
-    for(int i=0; i<50; i++){
-        ransu = rand() % (51-i);
+    for(int i = 0; i < 51; i++){
+        ransu = rand() % (52-i);
         tmp = cards[ransu];
         cards[ransu] = cards[51-i];
         cards[51-i] = tmp;
@@ -30,97 +37,74 @@ int main(int argc,char** argv){
     }
 
 
-
     //説明
-    printf("神経衰弱\nこの神経衰弱は黒、赤それぞれ26枚のカードを用います。数字の範囲は1～13です。色、数字共に一致。\n20回選択した時点で終了します。\n");
+    printf("神経衰弱\nこの神経衰弱は黒、赤それぞれ26枚のカードを用います。数字の範囲は1～13です。色、数字共に一致。\n%d回選択した時点で終了します。\n", KAISU);
 
 
-    int x1, y1, x2, y2, count = 0;
-
-    showCards(-1, -1);
-    while(1){
+    showCards(-1);
+    int count = 0;
+    while(count < KAISU){
 
 
         //一枚目のカード
-        printf("回数：%d\n", count);
-        printf("最初に選ぶカードの座標を入力してください。\n");
-        printf("X = ");
-        scanf("%d", &x1);
-        printf("Y = ");
-        scanf("%d", &y1);
-        cardsMark((y1 - 1) * 13 + x1 - 1);
-        printf("\n");
-        showCards(x1, y1);
+        printf("残り回数：%d\n", KAISU - count);
+        int idx1 = inputCard("--- 1枚目のカードを選んでください ---", -1);
+        cardsMark(idx1);
+        printf("\n\n");
+        showCards(idx1);
 
 
         //二枚目のカード
-        printf("次に選ぶカードの座標を入力してください。\n");
-        printf("X = ");
-        scanf("%d", &x2);
-        printf("Y = ");
-        scanf("%d", &y2);
-        if(0 < x1 && x1 < 14 && 0 < y1 && y1 < 5 && 0 < x2 && x2 < 14 && 0 < y2 && y2 < 5){
-            judgement(x1, y1, x2, y2);
-            cardsMark((y2 - 1) * 13 + x2 - 1);
-            printf("\n");
-            showCards(-1,-1);
-            count++;
-        }
-        else{
-            printf("無効な入力です。\n");
-            continue;
-        }
-
-
+        int idx2 = inputCard("--- 2枚目のカードを選んでください ---", idx1);
+        judgement(idx1, idx2);
+        cardsMark(idx2);
+        printf("\n\n-------------------------------------------------\n\n");
+        showCards(-1);
+        count++;
+        
 
         //ヒント
+        int ransu1, ransu2;
+        do {
+            ransu1 = rand() % 52;
+        } while (cards[ransu1] == -1);
+        do {
+            ransu2 = rand() % 52;
+        } while (cards[ransu2] == -1 || ransu1 == ransu2);
+
         printf("ヒント：");
-        ransu = rand() % 52;
-        cardsMark(ransu);
-        printf(" → (%d,%d)    ", ransu % 13 + 1, ransu / 13 + 1);
-        ransu = rand() % 52;
-        cardsMark(ransu);
-        printf(" → (%d,%d)", ransu % 13 + 1, ransu / 13 + 1);
+        cardsMark(ransu1);
+        printf(" → (%d,%d)    ", ransu1 % 13 + 1, ransu1 / 13 + 1);
+        cardsMark(ransu2);
+        printf(" → (%d,%d)", ransu2 % 13 + 1, ransu2 / 13 + 1);
         printf("\n");
-
-
-        for(int i = 0; i < 4; i++){
-            for(int j = 0; j < 13; j++){
-                cardsMark(i * 13 + j);
-                if((correctAnswer[i * 13 + j] + 1) % 13 != 0 && (correctAnswer[i * 13 + j] + 1) % 13 < 10){
-                    printf(" ");
-                }
-                printf("  ");
-            }
-            printf("\n");
-        }
-
-        if(count == 24){
-            printf("終了です。スコア：%d", score);
-            break;
-        }
     }
 
 
     //答え表示
     for(int i = 0; i < 4; i++){
         for(int j = 0; j < 13; j++){
+            int val = correctAnswer[i * 13 + j];
             cardsMark(i * 13 + j);
-            if((correctAnswer[i * 13 + j] + 1) % 13 != 0 && (correctAnswer[i * 13 + j] + 1) % 13 < 10){
+
+            // カードの数字が 1〜9 の時だけスペースを追加
+            if((val % 13) + 1 < 10){
                 printf(" ");
             }
             printf("  ");
         }
         printf("\n");
     }
+
+    printf("終了です。スコア：%d\n", score);
+    return 0;
 }
 
 
-
-
-
 //カード表示
-void showCards(int x, int y){
+void showCards(int idx){
+    
+    int x = idx % 13 + 1, y = idx / 13 + 1;
     printf("  1  2  3  4  5  6  7  8  9 10 11 12 13\n");
     for(int i = 0; i < 4; i++){
         printf("%d ", i + 1);
@@ -139,39 +123,55 @@ void showCards(int x, int y){
     }
 }
 
+
+//数値を入力
+int inputCard(const char* message, int firstIdx) {
+    int x, y, idx;
+
+    while (1) {
+        printf("\n%s\n", message);
+        printf("座標を X Y の順に入力してください（X Y）: ");
+        if (scanf("%d %d", &x, &y) != 2) {
+            printf("【エラー】数値で入力してください。\n");
+            while (getchar() != '\n');
+            continue;
+        }
+
+        idx = (y - 1) * 13 + (x - 1);
+        if (x < 1 || x > 13 || y < 1 || y > 4) {
+            printf("【エラー】範囲外です（X:1-13, Y:1-4）。\n");
+        } 
+        else if (cards[idx] == -1) {
+            printf("【エラー】そのカードは既に取られています。\n");
+        } 
+        else if (idx == firstIdx) {
+            printf("【エラー】1枚目と同じカードは選べません。\n");
+        } 
+        else {
+            return idx;
+        }
+    }
+}
+
+
 //正誤判定
-void judgement(int x1, int y1, int x2, int y2){
-    if(abs(cards[(y1 - 1) * 13 + x1 - 1] - cards[(y2 - 1 ) * 13 + x2 - 1]) == 13){
-        if(cards[(y1 - 1) * 13 + x1 - 1] < 26 && cards[(y2 - 1) * 13 + x2 - 1] < 26){
-            cards[(y1 - 1) * 13 + x1 - 1] = -1;
-            cards[(y2 - 1) * 13 + x2 - 1] = -1;
-            printf("正解\n");
-            score++;
-        }
-        else if(cards[(y1 - 1) * 13 + x1 - 1] > 25 && cards[(y2 - 1) * 13 + x2 - 1] > 25){
-            cards[(y1 - 1) * 13 + x1 - 1] = -1;
-            cards[(y2 - 1) * 13 + x2 - 1] = -1;
-            printf("正解\n");
-            score++;
-        }
+void judgement(int idx1, int idx2){
+    if((cards[idx1] / 26 == cards[idx2] / 26) && (cards[idx1] % 13 == cards[idx2] % 13)){
+        cards[idx1] = cards[idx2] = -1;
+        printf("正解\n");
+        score++;
     }
     else{
         printf("不正解\n");
     }
 }
 
+
 //カードに対応させる
-void cardsMark(int i){
-    if(correctAnswer[i] < 13){
-        printf("黒%d", correctAnswer[i] + 1);
-    }
-    else if(correctAnswer[i] > 12 && correctAnswer[i] <26){
-        printf("黒%d", correctAnswer[i]- 13 + 1);
-    }
-    else if(correctAnswer[i] > 25 && correctAnswer[i] < 39){
-        printf("赤%d", correctAnswer[i] -26 + 1);
-    }
-    else{
-        printf("赤%d", correctAnswer[i] - 39 + 1);
+void cardsMark(int i){ 
+    if(correctAnswer[i] < 26){
+        printf("黒%d", (correctAnswer[i] % 13) + 1);
+    } else {
+        printf("赤%d", (correctAnswer[i] % 13) + 1);
     }
 }
